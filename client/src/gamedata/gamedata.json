@@ -431,6 +431,21 @@
       "deployId": "27",
       "instanceGas": 2500000,
       "author": "ericnordelo"
+    },
+    {
+      "name": "Puzzle",
+      "created": "2018-12-12",
+      "difficulty": "5",
+      "description": "puzzle.md",
+      "completedDescription": "puzzle_complete.md",
+      "levelContract": "PuzzleFactory.sol",
+      "instanceContract": "Puzzle.sol",
+      "revealCode": true,
+      "deployParams": [],
+      "deployFunds": 1,
+      "deployId": "23",
+      "instanceGas": 3500000,
+      "author": "NicholasSpringer"
     }
   ]
 }
