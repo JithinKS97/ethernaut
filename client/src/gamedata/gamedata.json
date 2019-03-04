@@ -460,6 +460,7 @@
 =======
       "instanceGas": 302871,
       "author": "mkorniie"
+<<<<<<< HEAD:client/src/gamedata/gamedata.json
     },
     {
       "name": "Vault2",
@@ -476,6 +477,8 @@
       "instanceGas": 200000,
       "author": "syncikin"
 >>>>>>> b46247e (Level passes and validates):gamedata/gamedata.json
+=======
+>>>>>>> cc9a495 (Updated better version of Shuttl):gamedata/gamedata.json
     }
   ]
 }
