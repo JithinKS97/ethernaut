@@ -28,27 +28,31 @@ In order to install, build, and run Ethernaut locally, follow these instructions
     yarn install
     ```
 
-2. Start deterministic rpc
-
-    ```bash
-    yarn network
-    ```
-
-3. Import one of the private keys from the ganache-cli output to your Metamask wallet.
-4. Compile contracts
-
-    ```bash
-    yarn compile:contracts
-    ```
-
-5. Set client/src/constants.js ACTIVE_NETWORK to NETWORKS.LOCAL
-6. Deploy contracts
-
-    ```bash
-    yarn deploy:contracts
-    ```
-
-7. Start Ethernaut locally
+1. Install
+```
+git clone git@github.com:OpenZeppelin/ethernaut.git
+yarn install
+```
+2. Configure Rinkeby endpoint
+Create a new Alchemy project on the Rinkeby testnet network, and copy the RPC URL to the forking section at contracts/hardhat.config.js
+3. Start deterministic rpc
+```
+yarn network
+```
+4. You might want to import one of the private keys from ganache-cli to your Metamask wallet.
+5. Compile contracts
+```
+yarn compile:contracts
+```
+6. Set client/src/constants.js ACTIVE_NETWORK to NETWORKS.LOCAL
+7. Deploy contracts
+```
+yarn deploy:contracts
+```
+8. Start Ethernaut locally
+```
+yarn start:ethernaut
+```
 
     ```bash
     yarn start:ethernaut
