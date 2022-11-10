@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./levels/base/Level.sol";
 import "openzeppelin-contracts-08/access/Ownable.sol";
 
-interface Statistics {
+interface IStatistics {
     function setNewLevel(address level) external;
 
     function createNewInstance(
@@ -28,7 +28,11 @@ interface Statistics {
 }
 
 contract Ethernaut is Ownable {
-    Statistics public statistics;
+    IStatistics public statistics;
+
+    constructor(address _statProxy) {
+        statistics = IStatistics(_statProxy);
+    }
 
     // ----------------------------------
     // Owner interaction
