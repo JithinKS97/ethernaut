@@ -9,7 +9,7 @@ contract('Statistics', (accounts) => {
     let statistics
 
     let [
-        PLAYER_ADDRESS_1, PLAYER_ADDRESS_2,
+        PLAYER_ADDRESS_1,
         LEVEL_FACTORY_ADDRESS_1, LEVEL_FACTORY_ADDRESS_2,
         LEVEL_INSTANCE_ADDRESS_1
     ] = accounts
@@ -24,14 +24,14 @@ contract('Statistics', (accounts) => {
         
         describe('Addition of a new level factory address', () => { 
             it('should add a new level factory address', async () => { 
-                await statistics.saveNewLevelFactory(LEVEL_FACTORY_ADDRESS_1)
-                expect(await statistics.levelFactoryAddresses(0)).to.equal(LEVEL_FACTORY_ADDRESS_1)
+                await statistics.saveNewLevel(LEVEL_FACTORY_ADDRESS_1)
+                expect(await statistics.levels(0)).to.equal(LEVEL_FACTORY_ADDRESS_1)
             })
         })
 
         describe('Creation of a level instance', () => { 
             it('should create a new level stats instance', async () => { 
-                await statistics.saveCreateLevelStats(PLAYER_ADDRESS_1, LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_1)
+                await statistics.createNewInstance(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_1, PLAYER_ADDRESS_1)
             })
 
             it('checks if player address is successfully added to players list', async () => { 
@@ -39,13 +39,9 @@ contract('Statistics', (accounts) => {
             })
 
             it('should throw error if invalid level factory address provided during level stats creation', async () => { 
-                await expect(statistics.saveCreateLevelStats(PLAYER_ADDRESS_1, LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_2))
+                await expect(statistics.createNewInstance(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_2, PLAYER_ADDRESS_1))
                     .to.be.revertedWith("Invalid level factory address")
             })
-        })
-
-        describe("Submission of a level instance", () => { 
-
         })
     })
 })

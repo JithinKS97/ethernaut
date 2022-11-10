@@ -22,7 +22,7 @@ contract Statistics {
     mapping(address => Level) public levelStats;
     address[] public levels;
 
-    function createNewInstance(address instance, address level, address user) levelExistsCheck(instance) external {
+    function createNewInstance(address instance, address level, address user) levelExistsCheck(level) external {
         if(playerExists[user] == false) {
             players.push(user);
             playerExists[user] = true;
@@ -68,17 +68,17 @@ contract Statistics {
         return noOfLevelsCompleted;
     }
 
-    function isLevelSolved(address playerAddress, address level) playerExistsCheck(playerAddress) levelExistsCheck(level) public view returns(bool) {
-        return playerStats[playerAddress][level].isCompleted;
+    function isLevelSolved(address player, address level) playerExistsCheck(player) levelExistsCheck(level) public view returns(bool) {
+        return playerStats[player][level].isCompleted;
     }
 
-    function getTimeElapsedSinceCompletionOfLevel(address playerAddress, address levelFactoryAddress) playerExistsCheck(playerAddress) levelExistsCheck(levelFactoryAddress) public view returns(uint256) {
-        require(playerStats[playerAddress][levelFactoryAddress].isCompleted, "Level not completed");
-        return block.timestamp - playerStats[playerAddress][levelFactoryAddress].timeCompleted;
+    function getTimeElapsedSinceCompletionOfLevel(address player, address level) playerExistsCheck(player) levelExistsCheck(level) public view returns(uint256) {
+        require(playerStats[player][level].isCompleted, "Level not completed");
+        return block.timestamp - playerStats[player][level].timeCompleted;
     }
 
-    function getPercentageOfLevelsSolvedByPlayer(address playerAddress) playerExistsCheck(playerAddress) public view returns(uint256) {
-        return (getNoOfLevelsCompleted(playerAddress) * 100) / levels.length;
+    function getPercentageOfLevelsSolved(address player) playerExistsCheck(player) public view returns(uint256) {
+        return (getNoOfLevelsCompleted(player) * 100) / levels.length;
     }
 
     function getTotalNoOfInstancesCreated() public view returns(uint256) {
@@ -97,7 +97,7 @@ contract Statistics {
         return totalNoOfLevelInstancesSolved;
     }
 
-    function getTotalNoOfUniquePlayers() public view returns(uint256) {
+    function getTotalNoOfPlayers() public view returns(uint256) {
         return players.length;
     }
 
@@ -110,13 +110,13 @@ contract Statistics {
         return false;
     }
 
-    modifier levelExistsCheck(address levelFactoryAddress) {
-        require(doesLevelExist(levelFactoryAddress), "Invalid level factory address");
+    modifier levelExistsCheck(address level) {
+        require(doesLevelExist(level), "Invalid level factory address");
         _;
     }
 
-    modifier playerExistsCheck(address playerAddress) {
-        require(playerExists[playerAddress], "Invalid player address");
+    modifier playerExistsCheck(address player) {
+        require(playerExists[player], "Invalid player address");
         _;
     }
 }
