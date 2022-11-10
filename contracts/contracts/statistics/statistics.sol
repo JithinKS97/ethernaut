@@ -3,6 +3,8 @@
 pragma solidity ^0.8.0;
 
 contract Statistics {
+    address ETHERNAUT_ADDRESS;
+
     struct LevelInstance {
         address instance;
         bool isCompleted;
@@ -22,7 +24,11 @@ contract Statistics {
     mapping(address => Level) public levelStats;
     address[] public levels;
 
-    function createNewInstance(address instance, address level, address user) levelExistsCheck(level) external {
+    function initate(address _ethernautAddress) public {
+        ETHERNAUT_ADDRESS = _ethernautAddress;
+    }
+
+    function createNewInstance(address instance, address level, address user) onlyEthernaut levelExistsCheck(level) external {
         if(playerExists[user] == false) {
             players.push(user);
             playerExists[user] = true;
@@ -32,7 +38,7 @@ contract Statistics {
         levelStats[level].noOfInstancesCreated++;
     }
 
-    function submitSuccess(address level, address user) external levelExistsCheck(level) playerExistsCheck(user) {
+    function submitSuccess(address level, address user) onlyEthernaut levelExistsCheck(level) playerExistsCheck(user) external {
         require(playerStats[user][level].instance != address(0), "Level not created");
         require(playerStats[user][level].isCompleted == false, "Level already completed");
 
@@ -44,7 +50,7 @@ contract Statistics {
         levelStats[level].noOfInstancesSubmitted_Success++;
     }
 
-    function submitFailure(address level, address user) external levelExistsCheck(level) playerExistsCheck(user) {
+    function submitFailure(address level, address user) onlyEthernaut levelExistsCheck(level) playerExistsCheck(user) external {
         require(playerStats[user][level].instance != address(0), "Level not created");
         require(playerStats[user][level].isCompleted == false, "Level already completed");
 
@@ -53,7 +59,7 @@ contract Statistics {
         levelStats[level].noOfInstancesSubmitted_Fail++;
     }
 
-    function saveNewLevel(address level) public {
+    function saveNewLevel(address level) onlyEthernaut external {
         require(doesLevelExist(level) == false, "Level already exists");
         levels.push(level);
     }
@@ -117,6 +123,11 @@ contract Statistics {
 
     modifier playerExistsCheck(address player) {
         require(playerExists[player], "Invalid player address");
+        _;
+    }
+
+    modifier onlyEthernaut() {
+        require(msg.sender == ETHERNAUT_ADDRESS, "Only Ethernaut can call this function");
         _;
     }
 }
