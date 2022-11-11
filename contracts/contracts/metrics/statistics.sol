@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-contract Statistics {
+contract Statistics is Initializable {
     address ETHERNAUT_ADDRESS;
 
     struct LevelInstance {
@@ -24,7 +25,7 @@ contract Statistics {
     mapping(address => Level) public levelStats;
     address[] public levels;
 
-    constructor (address _ethernautAddress) {
+    function initialize (address _ethernautAddress) public initializer {
         ETHERNAUT_ADDRESS = _ethernautAddress;
     }
 
@@ -33,13 +34,13 @@ contract Statistics {
             players.push(player);
             playerExists[player] = true;
         }
-        require(playerStats[player][level].instance == address(0), "Level already created");
+        require(playerStats[player][level].instance == address(0), "Instance for the level is already created");
         playerStats[player][level] = LevelInstance(instance, false, block.timestamp, 0, new uint256[](0));
         levelStats[level].noOfInstancesCreated++;
     }
 
     function submitSuccess(address instance, address level, address player) onlyEthernaut levelExistsCheck(level) playerExistsCheck(player) external {
-        require(playerStats[player][level].instance != address(0), "Level not created");
+        require(playerStats[player][level].instance != address(0), "Instance for the level is not created");
         require(playerStats[player][level].isCompleted == false, "Level already completed");
 
         playerStats[player][level].timeSubmitted.push(block.timestamp);
@@ -51,7 +52,7 @@ contract Statistics {
     }
 
     function submitFailure(address instance, address level, address player) onlyEthernaut levelExistsCheck(level) playerExistsCheck(player) external {
-        require(playerStats[player][level].instance != address(0), "Level not created");
+        require(playerStats[player][level].instance != address(0), "Instance for the level is not created");
         require(playerStats[player][level].isCompleted == false, "Level already completed");
 
         playerStats[player][level].timeSubmitted.push(block.timestamp);
@@ -60,7 +61,7 @@ contract Statistics {
     }
 
     function saveNewLevel(address level) onlyEthernaut external {
-        require(doesLevelExist(level) == false, "Level already exists");
+        require(doesLevelExist(level) == false, "Input level factory address is already added");
         levels.push(level);
     }
 
