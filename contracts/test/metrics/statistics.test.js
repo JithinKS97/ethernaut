@@ -6,18 +6,22 @@ const { solidity } = require('ethereum-waffle');
 chai.use(solidity);
 
 contract('Statistics', (accounts) => { 
-    let statistics
+    let statistics;
 
-    let [
+    const [
+        ETHERNAUT_ADDRESS,
+        LEVEL_FACTORY_ADDRESS_1,
+        LEVEL_FACTORY_ADDRESS_2,
+        LEVEL_INSTANCE_ADDRESS_1,
         PLAYER_ADDRESS_1,
-        LEVEL_FACTORY_ADDRESS_1, LEVEL_FACTORY_ADDRESS_2,
-        LEVEL_INSTANCE_ADDRESS_1
-    ] = accounts
+        PLAYER_ADDRESS_2
+    ] = accounts;
 
     describe('Statistics', function () { 
         describe('Creation of statistics contract', () => { 
             it('should create a new statistics contract', async () => { 
-                statistics = await Statistics.new()
+                statistics = await Statistics.new();
+                await statistics.initialize(ETHERNAUT_ADDRESS)
                 expect(statistics.address).to.contain("0x")
             })
         })
@@ -41,6 +45,27 @@ contract('Statistics', (accounts) => {
             it('should throw error if invalid level factory address provided during level stats creation', async () => { 
                 await expect(statistics.createNewInstance(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_2, PLAYER_ADDRESS_1))
                     .to.be.revertedWith("Invalid level factory address")
+            })
+        })
+
+        describe("Submission of a level instance", () => { 
+            it('should submit a level instance', async () => { 
+                await statistics.submitSuccess(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_1, PLAYER_ADDRESS_1)
+            })
+
+            it('should throw error if invalid level factory address provided during level submission', async () => { 
+                await expect(statistics.submitSuccess(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_2, PLAYER_ADDRESS_1))
+                    .to.be.revertedWith("Invalid level factory address")
+            })
+
+            it('should throw error if invalid player address provided during level submission', async () => { 
+                await expect(statistics.submitSuccess(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_1, PLAYER_ADDRESS_2))
+                    .to.be.revertedWith("Invalid player address")
+            })
+
+            it("should not allow submission of a level that is completed", () => { 
+                expect(statistics.submitSuccess(LEVEL_INSTANCE_ADDRESS_1, LEVEL_FACTORY_ADDRESS_1, PLAYER_ADDRESS_1))
+                    .to.be.revertedWith("Level already completed")
             })
         })
     })
