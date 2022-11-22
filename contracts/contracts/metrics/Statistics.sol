@@ -312,7 +312,116 @@ contract Statistics is Initializable {
         return playerExists[player];
     }
 
-    
+    /**
+     * Functions for filling data to the contract
+     */
+
+    function updatePlayers(address[] memory _players) public {
+        for (uint256 i = 0; i < _players.length; i++) {
+            if(!playerExists[_players[i]]) {
+                playerExists[_players[i]] = true;
+                players.push(_players[i]);
+            }
+        }
+    }
+
+    function updateGlobalData(
+        uint256 _noOfAdditionalInstancesCreatedGlobally,
+        uint256 _noOfAdditionalInstancesCompletedGlobally,
+        uint256 _noOfAdditionalFailedSubmissionsGlobally,
+    ) public {
+        globalNoOfInstancesCreated += _noOfAdditionalInstancesCreatedGlobally;
+        globalNoOfInstancesCompleted += _noOfAdditionalInstancesCompletedGlobally;
+        globalNoOfFailedSubmissions += _noOfAdditionalFailedSubmissionsGlobally;
+    }
+
+    function updateSinglePlayerData(
+        address _player,
+        uint256 _noOfAdditionalInstancesCreatedByPlayer,
+        uint256 _noOfAdditionalInstancesCompletedByPlayer,
+        uint256 _noOfAdditionalLevelsCompletedByPlayer
+    ) private {
+        globalNoOfInstancesCreatedByPlayer[_player] += _noOfAdditionalInstancesCreatedByPlayer;
+        globalNoOfInstancesCompletedByPlayer[_player] += _noOfAdditionalInstancesCompletedByPlayer;
+        globalNoOfLevelsCompletedByPlayer[_player] += _noOfAdditionalLevelsCompletedByPlayer;
+    }
+
+    function updateAllPlayerData(
+        address[] memory _players,
+        uint256[] memory _noOfAdditionalInstancesCreatedByPlayer,
+        uint256[] memory _noOfAdditionalInstancesCompletedByPlayer,
+        uint256[] memory _noOfAdditionalLevelsCompletedByPlayer
+    ) public {
+        for (uint256 i = 0; i < _players.length; i++) {
+            updateSinglePlayerData(
+                _players[i],
+                _noOfAdditionalInstancesCreatedByPlayer[i],
+                _noOfAdditionalInstancesCompletedByPlayer[i],
+                _noOfAdditionalLevelsCompletedByPlayer[i]
+            );
+        }
+    }
+
+    function updateSingleLevelData(
+        address _level,
+        uint256 _noOfAdditionalInstancesCreated,
+        uint256 _noOfAdditionalInstancesCompleted,
+    ) private {
+        levelStats[_level].noOfInstancesCreated += _noOfAdditionalInstancesCreated;
+        levelStats[_level].noOfInstancesSubmitted_Success += _noOfAdditionalInstancesCompleted;
+    }
+
+    function updateAllLevelData(
+        address[] memory _levels,
+        uint256[] memory _noOfAdditionalInstancesCreated,
+        uint256[] memory _noOfAdditionalInstancesCompleted
+    ) public {
+        for (uint256 i = 0; i < _levels.length; i++) {
+            updateSingleLevelData(
+                _levels[i],
+                _noOfAdditionalInstancesCreated[i],
+                _noOfAdditionalInstancesCompleted[i]
+            );
+        }
+    }
+
+    function updatePlayerStatsData(
+        address[] memory _players,
+        address[] memory _levels,
+        address[] memory _instances,
+        bool[] memory _isCompleted,
+        uint256[] memory _timeCompleted,
+        uint256[] memory _timeCreated,
+        uint256[] memory _timeSubmitted,
+        uint256[] memory _levelFirstCompletedTime
+        uint256[] memory _levelFirstInstanceCreationTime
+    ) {
+        for (uint256 i = 0; i < _levels.length; i++) {
+            for(uint256 j = 0; j < _players.length; j++) {
+                playerStats[_players[j]][_levels[i]].instance = _instances[_levels.length * i + j];
+                playerStats[_players[j]][_levels[i]].isCompleted = _isCompleted[_levels.length * i + j];
+                playerStats[_players[j]][_levels[i]].timeCompleted = _timeCompleted[_levels.length * i + j];
+                playerStats[_players[j]][_levels[i]].timeCreated = _timeCreated[_levels.length * i + j];
+                if(_timeSubmitted[_levels.length * i + j] != 0) {
+                    levelFirstInstanceCreationTime[_players[j]][_levels[i]].timeSubmitted.push(_timeSubmitted[_levels.length * i + j]);
+                }
+                if(_levelFirstCompletedTime[_levels.length * i + j] != 0) {
+                    levelFirstCompletionTime[_players[j]][_levels[i]] = _levelFirstCompletedTime[_levels.length * i + j];
+                }
+                if(_levelFirstInstanceCreationTime[_levels.length * i + j] != 0) {
+                    levelFirstInstanceCreationTime[_players[j]][_levels[i]] = _levelFirstInstanceCreationTime[_levels.length * i + j];
+                }
+            }
+        }
+    }
+
+    /**
+     *    l1 l2 l3 l4 l5
+     * p1 i1 i2 i3 i4 i5
+     * p2 i6 i7 i8 i9 i10
+     * p3 i11 i12 i13 i14
+     */
+
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
