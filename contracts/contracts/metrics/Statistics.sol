@@ -328,7 +328,7 @@ contract Statistics is Initializable {
     function updateGlobalData(
         uint256 _noOfAdditionalInstancesCreatedGlobally,
         uint256 _noOfAdditionalInstancesCompletedGlobally,
-        uint256 _noOfAdditionalFailedSubmissionsGlobally,
+        uint256 _noOfAdditionalFailedSubmissionsGlobally
     ) public {
         globalNoOfInstancesCreated += _noOfAdditionalInstancesCreatedGlobally;
         globalNoOfInstancesCompleted += _noOfAdditionalInstancesCompletedGlobally;
@@ -365,7 +365,7 @@ contract Statistics is Initializable {
     function updateSingleLevelData(
         address _level,
         uint256 _noOfAdditionalInstancesCreated,
-        uint256 _noOfAdditionalInstancesCompleted,
+        uint256 _noOfAdditionalInstancesCompleted
     ) private {
         levelStats[_level].noOfInstancesCreated += _noOfAdditionalInstancesCreated;
         levelStats[_level].noOfInstancesSubmitted_Success += _noOfAdditionalInstancesCompleted;
@@ -393,33 +393,46 @@ contract Statistics is Initializable {
         uint256[] memory _timeCompleted,
         uint256[] memory _timeCreated,
         uint256[] memory _timeSubmitted,
-        uint256[] memory _levelFirstCompletedTime
+        uint256[] memory _levelFirstCompletedTime,
         uint256[] memory _levelFirstInstanceCreationTime
-    ) {
-        for (uint256 i = 0; i < _levels.length; i++) {
-            for(uint256 j = 0; j < _players.length; j++) {
-                playerStats[_players[j]][_levels[i]].instance = _instances[_levels.length * i + j];
-                playerStats[_players[j]][_levels[i]].isCompleted = _isCompleted[_levels.length * i + j];
-                playerStats[_players[j]][_levels[i]].timeCompleted = _timeCompleted[_levels.length * i + j];
-                playerStats[_players[j]][_levels[i]].timeCreated = _timeCreated[_levels.length * i + j];
-                if(_timeSubmitted[_levels.length * i + j] != 0) {
-                    levelFirstInstanceCreationTime[_players[j]][_levels[i]].timeSubmitted.push(_timeSubmitted[_levels.length * i + j]);
-                }
-                if(_levelFirstCompletedTime[_levels.length * i + j] != 0) {
-                    levelFirstCompletionTime[_players[j]][_levels[i]] = _levelFirstCompletedTime[_levels.length * i + j];
-                }
-                if(_levelFirstInstanceCreationTime[_levels.length * i + j] != 0) {
-                    levelFirstInstanceCreationTime[_players[j]][_levels[i]] = _levelFirstInstanceCreationTime[_levels.length * i + j];
+    ) public {
+        for (uint256 i = 0; i < _players.length; i++) {
+            for(uint256 j = 0; j < _levels.length; j++) {
+                if(playerStats[_players[i]][_levels[j]].instance == address(0)) {
+                    playerStats[_players[i]][_levels[j]].instance = _instances[_levels.length * i + j];
+                    playerStats[_players[i]][_levels[j]].isCompleted = _isCompleted[_levels.length * i + j];
+                    playerStats[_players[i]][_levels[j]].timeCompleted = _timeCompleted[_levels.length * i + j];
+                    playerStats[_players[i]][_levels[j]].timeCreated = _timeCreated[_levels.length * i + j];
+                    if(_timeSubmitted[_levels.length * i + j] != 0) {
+                        playerStats[_players[i]][_levels[j]].timeSubmitted.push(_timeSubmitted[_levels.length * i + j]);
+                    }
+                    if(_levelFirstCompletedTime[_levels.length * i + j] != 0) {
+                        levelFirstCompletionTime[_players[i]][_levels[j]] = _levelFirstCompletedTime[_levels.length * i + j];
+                    }
+                    if(_levelFirstInstanceCreationTime[_levels.length * i + j] != 0) {
+                        levelFirstInstanceCreationTime[_players[i]][_levels[j]] = _levelFirstInstanceCreationTime[_levels.length * i + j];
+                    }
                 }
             }
         }
     }
 
     /**
-     *    l1 l2 l3 l4 l5
-     * p1 i1 i2 i3 i4 i5
-     * p2 i6 i7 i8 i9 i10
-     * p3 i11 i12 i13 i14
+     *    l0  l1  l2  l3  l4
+     * p0 i0  i1  i2  i3  i4
+     * p1 i5  i6  i7  i8  i9
+     * p2 i10 i11 i12 i13 i14
+     * 
+     * playerStats[p0][l0].instance = i0
+     * playerStats[p0][l1].instance = i1
+     * playerStats[p0][l2].instance = i2
+     * playerStats[p0][l3].instance = i3
+     * playerStats[p0][l4].instance = i4
+     * 
+     * playerStats[p1][l0].instance = i5
+     * playerStats[p1][l1].instance = i6
+     * ...
+     * 
      */
 
     /**
