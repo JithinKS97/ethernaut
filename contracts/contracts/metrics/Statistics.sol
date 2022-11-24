@@ -350,14 +350,12 @@ contract Statistics is Initializable {
         address[] memory _players,
         uint256[] memory _noOfAdditionalInstancesCreatedByPlayer,
         uint256[] memory _noOfAdditionalInstancesCompletedByPlayer,
-        uint256[] memory _noOfAdditionalLevelsCompletedByPlayer
     ) public {
         for (uint256 i = 0; i < _players.length; i++) {
             updateSinglePlayerData(
                 _players[i],
                 _noOfAdditionalInstancesCreatedByPlayer[i],
                 _noOfAdditionalInstancesCompletedByPlayer[i],
-                _noOfAdditionalLevelsCompletedByPlayer[i]
             );
         }
     }
@@ -434,6 +432,14 @@ contract Statistics is Initializable {
      * ...
      * 
      */
+
+    function updateLevelsCompletedByPlayer(address _player, address[] _levels) {
+        for(uint256 i = 0; i < _levels.length; i++) {
+            if(levelFirstCompletionTime[_player][_levels[i]] == 0) {
+                globalNoOfLevelsCompletedByPlayer[_player] += 1;
+            }
+        }
+    }
 
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
