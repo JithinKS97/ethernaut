@@ -381,8 +381,34 @@ contract Statistics is Initializable {
         }
     }
 
-    function updatePlayerStatsData(
+    function updatePlayersData(
         address[] memory _players,
+        address[][] memory _levels,
+        address[][] memory _instances,
+        bool[][] memory _isCompleted,
+        uint256[][] memory _timeCompleted,
+        uint256[][] memory _timeCreated,
+        uint256[][] memory _timeSubmitted,
+        uint256[][] memory _levelFirstCompletedTime,
+        uint256[][] memory _levelFirstInstanceCreationTime
+    ) public {
+        for (uint256 i = 0; i < _players.length; i++) {
+            updatePlayerData(
+                _players[i],
+                _levels[i],
+                _instances[i],
+                _isCompleted[i],
+                _timeCompleted[i],
+                _timeCreated[i],
+                _timeSubmitted[i],
+                _levelFirstCompletedTime[i],
+                _levelFirstInstanceCreationTime[i]
+            );
+        }
+    }
+
+    function updatePlayerData(
+        address _player,
         address[] memory _levels,
         address[] memory _instances,
         bool[] memory _isCompleted,
@@ -392,54 +418,38 @@ contract Statistics is Initializable {
         uint256[] memory _levelFirstCompletedTime,
         uint256[] memory _levelFirstInstanceCreationTime
     ) public {
-        for (uint256 i = 0; i < _players.length; i++) {
-            for(uint256 j = 0; j < _levels.length; j++) {
-                if(playerStats[_players[i]][_levels[j]].instance == address(0)) {
-                    playerStats[_players[i]][_levels[j]].instance = _instances[_levels.length * i + j];
-                    playerStats[_players[i]][_levels[j]].isCompleted = _isCompleted[_levels.length * i + j];
-                    playerStats[_players[i]][_levels[j]].timeCompleted = _timeCompleted[_levels.length * i + j];
-                    playerStats[_players[i]][_levels[j]].timeCreated = _timeCreated[_levels.length * i + j];
-                    if(_timeSubmitted[_levels.length * i + j] != 0) {
-                        playerStats[_players[i]][_levels[j]].timeSubmitted.push(_timeSubmitted[_levels.length * i + j]);
-                    }
-                    if(_levelFirstCompletedTime[_levels.length * i + j] != 0) {
-                        levelFirstCompletionTime[_players[i]][_levels[j]] = _levelFirstCompletedTime[_levels.length * i + j];
-                    }
-                    if(_levelFirstInstanceCreationTime[_levels.length * i + j] != 0) {
-                        levelFirstInstanceCreationTime[_players[i]][_levels[j]] = _levelFirstInstanceCreationTime[_levels.length * i + j];
-                    }
+        for(uint256 j = 0; j < _levels.length; j++) {
+            if(playerStats[_player][_levels[j]].instance == address(0)) {
+                playerStats[_player][_levels[j]].instance = _instances[j];
+                playerStats[_player][_levels[j]].isCompleted = _isCompleted[j];
+                playerStats[_player][_levels[j]].timeCompleted = _timeCompleted[j];
+                playerStats[_player][_levels[j]].timeCreated = _timeCreated[j];
+                if(_timeSubmitted[j] != 0) {
+                    playerStats[_player][_levels[j]].timeSubmitted.push(_timeSubmitted[j]);
+                }
+                if(_levelFirstCompletedTime[j] != 0) {
+                    levelFirstCompletionTime[_player][_levels[j]] = _levelFirstCompletedTime[j];
+                }
+                if(_levelFirstInstanceCreationTime[j] != 0) {
+                    levelFirstInstanceCreationTime[_player][_levels[j]] = _levelFirstInstanceCreationTime[j];
                 }
             }
         }
     }
 
-    /**
-     *    l0  l1  l2  l3  l4
-     * p0 i0  i1  i2  i3  i4
-     * p1 i5  i6  i7  i8  i9
-     * p2 i10 i11 i12 i13 i14
-     * 
-     * playerStats[p0][l0].instance = i0
-     * playerStats[p0][l1].instance = i1
-     * playerStats[p0][l2].instance = i2
-     * playerStats[p0][l3].instance = i3
-     * playerStats[p0][l4].instance = i4
-     * 
-     * playerStats[p1][l0].instance = i5
-     * playerStats[p1][l1].instance = i6
-     * ...
-     * 
-     */
+    function updateLevelsCompletedByPlayer(address _player, address[] memory _levels) public {
+        for(uint256 i = 0; i < _levels.length; i++) {
+            if(levelFirstCompletionTime[_player][_levels[i]] == 0) {
+                globalNoOfLevelsCompletedByPlayer[_player]++;
+            }
+        }
+    }
 
     function updateLevelsCompletedByPlayers(address[] memory _players, address[][] memory _levels) public {
         for(uint256 i = 0; i < _players.length; i++) {
             for(uint256 j = 0; j < _levels.length; j++) {
                address[] memory levelsCompletedByPlayer = _levels[j];
-               for(uint256 k = 0; k < levelsCompletedByPlayer.length; k++) {
-                  if(levelFirstCompletionTime[_players[i]][levelsCompletedByPlayer[k]] == 0) {
-                      globalNoOfLevelsCompletedByPlayer[_players[i]]++;
-                  }
-               }
+               updateLevelsCompletedByPlayer(_players[i], levelsCompletedByPlayer);
             }
         }
     }
