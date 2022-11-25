@@ -82,7 +82,7 @@ contract Statistics is Initializable {
         globalNoOfInstancesCreated++;
         globalNoOfInstancesCreatedByPlayer[player]++;
     }
-
+    
     function submitSuccess(
         address instance,
         address level,
@@ -388,7 +388,7 @@ contract Statistics is Initializable {
         bool[][] memory _isCompleted,
         uint256[][] memory _timeCompleted,
         uint256[][] memory _timeCreated,
-        uint256[][] memory _timeSubmitted,
+        uint256[][][] memory _timeSubmitted,
         uint256[][] memory _levelFirstCompletedTime,
         uint256[][] memory _levelFirstInstanceCreationTime
     ) public {
@@ -414,26 +414,57 @@ contract Statistics is Initializable {
         bool[] memory _isCompleted,
         uint256[] memory _timeCompleted,
         uint256[] memory _timeCreated,
-        uint256[] memory _timeSubmitted,
+        uint256[][] memory _timeSubmitted,
         uint256[] memory _levelFirstCompletedTime,
         uint256[] memory _levelFirstInstanceCreationTime
     ) public {
         for(uint256 j = 0; j < _levels.length; j++) {
             if(playerStats[_player][_levels[j]].instance == address(0)) {
-                playerStats[_player][_levels[j]].instance = _instances[j];
-                playerStats[_player][_levels[j]].isCompleted = _isCompleted[j];
-                playerStats[_player][_levels[j]].timeCompleted = _timeCompleted[j];
-                playerStats[_player][_levels[j]].timeCreated = _timeCreated[j];
-                if(_timeSubmitted[j] != 0) {
-                    playerStats[_player][_levels[j]].timeSubmitted.push(_timeSubmitted[j]);
-                }
-                if(_levelFirstCompletedTime[j] != 0) {
-                    levelFirstCompletionTime[_player][_levels[j]] = _levelFirstCompletedTime[j];
-                }
-                if(_levelFirstInstanceCreationTime[j] != 0) {
-                    levelFirstInstanceCreationTime[_player][_levels[j]] = _levelFirstInstanceCreationTime[j];
+                updatePlayerDataForALevel(
+                    _player,
+                    _levels[j],
+                    _instances[j],
+                    _isCompleted[j],
+                    _timeCompleted[j],
+                    _timeCreated[j],
+                    _timeSubmitted[j],
+                    _levelFirstCompletedTime[j],
+                    _levelFirstInstanceCreationTime[j]
+                );
+            }
+        }
+    }
+
+    function updatePlayerDataForALevel(
+        address _player,
+        address _level,
+        address _instance,
+        bool _isCompleted,
+        uint256 _timeCompleted,
+        uint256 _timeCreated,
+        uint256[] memory _timeSubmitted,
+        uint256 _levelFirstCompletedTime,
+        uint256 _levelFirstInstanceCreationTime
+    ) public {
+        if(playerStats[_player][_level].instance == address(0)) {
+            playerStats[_player][_level].instance = _instance;
+            playerStats[_player][_level].isCompleted = _isCompleted;
+            playerStats[_player][_level].timeCompleted = _timeCompleted;
+            playerStats[_player][_level].timeCreated = _timeCreated;
+            if(_timeSubmitted.length > 0) {
+                for(uint256 i = 0; i < _timeSubmitted.length; i++) {
+                    playerStats[_player][_level].timeSubmitted.push(_timeSubmitted[i]);
                 }
             }
+        }
+        // Even if instance is already present
+        // we need to update the level first completed time and level first instance creation time
+        // because these values are earlier than the ones present in the contract
+        if(_levelFirstCompletedTime != 0) {
+            levelFirstCompletionTime[_player][_level] = _levelFirstCompletedTime;
+        }
+        if(_levelFirstInstanceCreationTime != 0) {
+            levelFirstInstanceCreationTime[_player][_level] = _levelFirstInstanceCreationTime;
         }
     }
 
