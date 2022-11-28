@@ -36,6 +36,11 @@ contract Statistics is Initializable {
         require(doesLevelExist(level), "Level doesn't exist");
         _;
     }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
     modifier levelDoesntExistCheck(address level) {
         require(!doesLevelExist(level), "Level already exists");
         _;
@@ -58,7 +63,6 @@ contract Statistics is Initializable {
 
     function initialize(address _ethernautAddress) public initializer {
         ethernaut = _ethernautAddress;
-        owner = msg.sender;
     }
 
     // Protected functions
