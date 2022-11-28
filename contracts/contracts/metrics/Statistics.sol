@@ -333,12 +333,10 @@ contract Statistics is Initializable {
 
     function updateGlobalData(
         uint256 _noOfAdditionalInstancesCreatedGlobally,
-        uint256 _noOfAdditionalInstancesCompletedGlobally,
-        uint256 _noOfAdditionalFailedSubmissionsGlobally
+        uint256 _noOfAdditionalInstancesCompletedGlobally
     ) public onlyOwner {
         globalNoOfInstancesCreated += _noOfAdditionalInstancesCreatedGlobally;
         globalNoOfInstancesCompleted += _noOfAdditionalInstancesCompletedGlobally;
-        globalNoOfFailedSubmissions += _noOfAdditionalFailedSubmissionsGlobally;
     }
 
     function updateSinglePlayerGlobalData(
