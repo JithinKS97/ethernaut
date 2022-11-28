@@ -4,6 +4,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract Statistics is Initializable {
     address public ethernaut;
+    address public owner;
     address[] public players;
     address[] public levels;
     uint256 private globalNoOfInstancesCreated;
@@ -50,9 +51,14 @@ contract Statistics is Initializable {
         );
         _;
     }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function");
+        _;
+    }
 
     function initialize(address _ethernautAddress) public initializer {
         ethernaut = _ethernautAddress;
+        owner = msg.sender;
     }
 
     // Protected functions
@@ -316,7 +322,7 @@ contract Statistics is Initializable {
      * Functions for filling data to the contract
      */
 
-    function updatePlayers(address[] memory _players) public {
+    function updatePlayers(address[] memory _players) public onlyOwner {
         for (uint256 i = 0; i < _players.length; i++) {
             if(!playerExists[_players[i]]) {
                 playerExists[_players[i]] = true;
@@ -329,7 +335,7 @@ contract Statistics is Initializable {
         uint256 _noOfAdditionalInstancesCreatedGlobally,
         uint256 _noOfAdditionalInstancesCompletedGlobally,
         uint256 _noOfAdditionalFailedSubmissionsGlobally
-    ) public {
+    ) public onlyOwner {
         globalNoOfInstancesCreated += _noOfAdditionalInstancesCreatedGlobally;
         globalNoOfInstancesCompleted += _noOfAdditionalInstancesCompletedGlobally;
         globalNoOfFailedSubmissions += _noOfAdditionalFailedSubmissionsGlobally;
@@ -348,7 +354,7 @@ contract Statistics is Initializable {
         address[] memory _players,
         uint256[] memory _noOfAdditionalInstancesCreatedByPlayer,
         uint256[] memory _noOfAdditionalInstancesCompletedByPlayer
-    ) public {
+    ) public onlyOwner {
         for (uint256 i = 0; i < _players.length; i++) {
             updateSinglePlayerGlobalData(
                 _players[i],
@@ -371,7 +377,7 @@ contract Statistics is Initializable {
         address[] memory _levels,
         uint256[] memory _noOfAdditionalInstancesCreated,
         uint256[] memory _noOfAdditionalInstancesCompleted
-    ) public {
+    ) public onlyOwner {
         for (uint256 i = 0; i < _levels.length; i++) {
             updateSingleLevelData(
                 _levels[i],
@@ -391,7 +397,7 @@ contract Statistics is Initializable {
         uint256[][][] memory _timeSubmitted,
         uint256[][] memory _levelFirstCompletedTime,
         uint256[][] memory _levelFirstInstanceCreationTime
-    ) public {
+    ) public onlyOwner {
         for (uint256 i = 0; i < _players.length; i++) {
             updatePlayerStatsDataForAPlayer(
                 _players[i],
@@ -417,7 +423,7 @@ contract Statistics is Initializable {
         uint256[][] memory _timeSubmitted,
         uint256[] memory _levelFirstCompletedTime,
         uint256[] memory _levelFirstInstanceCreationTime
-    ) public {
+    ) private {
         for(uint256 j = 0; j < _levels.length; j++) {
             if(playerStats[_player][_levels[j]].instance == address(0)) {
                 updatePlayerStatsDataForALevel(
@@ -445,7 +451,7 @@ contract Statistics is Initializable {
         uint256[] memory _timeSubmitted,
         uint256 _levelFirstCompletedTime,
         uint256 _levelFirstInstanceCreationTime
-    ) public {
+    ) private {
         if(playerStats[_player][_level].instance == address(0)) {
             playerStats[_player][_level].instance = _instance;
             playerStats[_player][_level].isCompleted = _isCompleted;
@@ -468,7 +474,7 @@ contract Statistics is Initializable {
         }
     }
 
-    function updateLevelsCompletedByPlayer(address _player, address[] memory _levels) public {
+    function updateLevelsCompletedByPlayer(address _player, address[] memory _levels) private {
         for(uint256 i = 0; i < _levels.length; i++) {
             if(levelFirstCompletionTime[_player][_levels[i]] == 0) {
                 globalNoOfLevelsCompletedByPlayer[_player]++;
@@ -476,7 +482,10 @@ contract Statistics is Initializable {
         }
     }
 
-    function updateLevelsCompletedByPlayers(address[] memory _players, address[][] memory _levels) public {
+    function updateLevelsCompletedByPlayers(address[] memory _players, address[][] memory _levels) 
+        public 
+        onlyOwner
+    {
         for(uint256 i = 0; i < _players.length; i++) {
             for(uint256 j = 0; j < _levels.length; j++) {
                address[] memory levelsCompletedByPlayer = _levels[j];
