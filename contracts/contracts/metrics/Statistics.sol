@@ -4,7 +4,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract Statistics is Initializable {
     address public ethernaut;
-    address public owner;
     address[] public players;
     address[] public levels;
     uint256 private globalNoOfInstancesCreated;
@@ -37,10 +36,6 @@ contract Statistics is Initializable {
         _;
     }
 
-    constructor() {
-        owner = msg.sender;
-    }
-
     modifier levelDoesntExistCheck(address level) {
         require(!doesLevelExist(level), "Level already exists");
         _;
@@ -57,7 +52,7 @@ contract Statistics is Initializable {
         _;
     }
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
+        require(msg.sender == 0x09902A56d04a9446601a0d451E07459dC5aF0820, "Only owner can call this function");
         _;
     }
 
@@ -503,3 +498,9 @@ contract Statistics is Initializable {
      */
     uint256[45] private __gap;
 }
+
+/**
+ * 1. Checkpoints
+ * 2. Runner function
+ * 3. See if functions can be optimized
+ */
