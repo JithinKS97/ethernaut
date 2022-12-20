@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 contract Statistics is Initializable {
     address public ethernaut;
@@ -120,6 +121,9 @@ contract Statistics is Initializable {
         updateAverageTimeTakenToCompleteLevelsByPlayer(player, level);
         averageCompletionTimeByPlayer = getAverageTimeTakenToCompleteLevels(player);
         globalLevelsSolvedByPlayer = getTotalNoOfLevelsCompletedByPlayer(player);
+        console.log(player);
+        console.log(averageCompletionTimeByPlayer);
+        console.log(globalLevelsSolvedByPlayer);
         emit playerScoreProfile(player, averageCompletionTimeByPlayer, globalLevelsSolvedByPlayer);
     }
 
