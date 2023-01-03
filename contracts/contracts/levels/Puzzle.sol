@@ -14,5 +14,5 @@ contract Puzzle {
       msg.sender.send(reward);
     }
     lastAttempter=msg.sender;
-    }
+  }
 }
