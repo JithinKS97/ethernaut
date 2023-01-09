@@ -4,9 +4,7 @@ const ShuttleAttack = artifacts.require('./attacks/ShuttleAttack.sol')
 
 const Ethernaut = artifacts.require('./Ethernaut.sol')
 
-import * as utils from '../utils/TestUtils'
-import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow'
-import toPromise from 'zeppelin-solidity/test/helpers/toPromise'
+const utils = require('../utils/TestUtils');
 
 contract('Shuttle', function(accounts) {
 

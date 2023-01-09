@@ -1,4 +1,5 @@
-pragma solidity ^0.4.24;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 contract Shuttle {
   bool public launched;
@@ -9,7 +10,7 @@ contract Shuttle {
     _;
   }
   
-  constructor (bytes32 _launchCode) public {
+  constructor (bytes32 _launchCode) {
     launched = false;
     launchCode_encr = _launchCode;
   }
