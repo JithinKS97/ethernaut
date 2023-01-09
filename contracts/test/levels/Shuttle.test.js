@@ -40,9 +40,6 @@ contract('Shuttle', function(accounts) {
 
     const password = await web3.eth.getStorageAt(instance.address, 1);
 
-    console.log('password')
-    console.log(password) 
-
     await attacker.attack(instance.address, password)
 
     const completed = await utils.submitLevelInstance(
