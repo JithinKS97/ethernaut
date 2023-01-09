@@ -14,7 +14,7 @@ contract('Shuttle', function(accounts) {
   let player = accounts[0]
 
   before(async function() {
-    ethernaut = await Ethernaut.new();
+    ethernaut = await utils.getEthernautWithStatsProxy();
     level = await ShuttleFactory.new()
     await ethernaut.registerLevel(level.address)
   });
@@ -37,7 +37,11 @@ contract('Shuttle', function(accounts) {
     const instance = await utils.createLevelInstance(ethernaut, level.address, player, Shuttle)
 
     const attacker = await ShuttleAttack.new()
-    var password = web3.toAscii(web3.eth.getStorageAt(instance.address, 1));
+
+    const password = await web3.eth.getStorageAt(instance.address, 1);
+
+    console.log('password')
+    console.log(password) 
 
     await attacker.attack(instance.address, password)
 
