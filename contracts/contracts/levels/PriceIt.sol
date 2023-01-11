@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+pragma solidity ^0.8.0;
+import 'openzeppelin-contracts-08/token/ERC20/IERC20.sol';
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
@@ -16,7 +16,7 @@ contract PriceIt {
     IERC20 _token0,
     IERC20 _token1,
     IERC20 _token2
-  ) public {
+  ) {
     (token0, token1, token2) = (_token0, _token1, _token2);
   }
 
