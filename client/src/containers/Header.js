@@ -16,7 +16,7 @@ class Header extends React.Component {
     this.state = {
       dark: false,
       lang: localStorage.getItem("lang"),
-      chainId: 0
+      chainId: 0,
     };
 
     if (this.props.web3) {
@@ -195,7 +195,7 @@ class Header extends React.Component {
             </a>
             <ul className="header-ul">
               {
-                window.location.pathname === constants.PATH_ROOT &&
+                window.location.pathname === constants.PATH_ROOT && this.state.chainId!==0 &&
                   <Link to={constants.PATH_LEADERBOARD}>
                     <LeaderIcon />
                   </Link>
