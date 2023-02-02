@@ -1,5 +1,5 @@
 const fs = require("fs");
-const leaderBoardPath = `${__dirname}/../../../boards/leaderBoard.json`;
+const leaderBoardPath = `client/leaderboard/boards/aliases.json`;
 const dotenv = require("dotenv");
 const axios = require("axios");
 
@@ -20,22 +20,23 @@ const eliminateDuplicates = (aliasArray) => {
     if (indices.length === 1) {
       finalResults.push(aliasArray[indices[0]]);
     } else {
-      const entryWithLastCreatedDate = getEntryWithLastCreatedDate(indices.map((index) => aliasArray[index]));
-      finalResults.push(entryWithLastCreatedDate);
+      const entryWithLastUpdatedDate = getEntryWithLastUpdatedDate(indices.map((index) => aliasArray[index]));
+      finalResults.push(entryWithLastUpdatedDate);
     }
   });
   return finalResults
 }
 
-const getEntryWithLastCreatedDate = (aliasArray) => { 
-  let entryWithLastCreatedDate = aliasArray[0];
-  for (let i = 1; i < aliasArray.length; i++) { 
-
-    if (Date.parse(aliasArray[i].createdate) > Date.parse(entryWithLastCreatedDate.createdate)) { 
-      entryWithLastCreatedDate = aliasArray[i];
+const getEntryWithLastUpdatedDate = (aliasArray) => { 
+  let entryWithLastUpdatedDate = aliasArray[0];
+  for (let i = 1; i < aliasArray.length; i++) {
+    const date1 = Date.parse(aliasArray[i].lastmodifieddate);
+    const date2 = Date.parse(entryWithLastUpdatedDate.lastmodifieddate);
+    if (date1 > date2) { 
+      entryWithLastUpdatedDate = aliasArray[i];
     }
   }
-  return entryWithLastCreatedDate;
+  return entryWithLastUpdatedDate;
 }
 
 const getAddressToIndicesMapping = (aliasArray) => { 
@@ -66,8 +67,18 @@ const getFetchAliasRequest = async (after) => {
   const response = await axios.post('https://api.hubapi.com/crm/v3/objects/contacts/search',
     {
       limit: 100,
-      properties: ["email", "ethernaut_address", "ethernaut_alias"],
-      after
+      properties: ["ethernaut_address", "ethernaut_alias"],
+      after,
+      filterGroups: [
+        {
+          filters: [
+            {
+              propertyName: "ethernaut_address",
+              operator: "HAS_PROPERTY"
+            }
+          ]
+        }
+      ]
     },
     {
       headers: {
@@ -80,26 +91,20 @@ const getFetchAliasRequest = async (after) => {
 }
 
 const addAliases = async (aliasArray) => {
-  const leaderBoard = JSON.parse(fs.readFileSync(leaderBoardPath));
+  const leaderBoard = require(leaderBoardPath);
 
-  const newLeaderBoard = leaderBoard.map((entry) => {
-    for (let i = 0; i < aliasArray.length; i++) {
-      if (!entry) { 
-        continue;
-      }
-      if(entry.player === aliasArray[i].player) {
-        return {
-          ...entry,
-          alias: aliasArray[i].alias
-        }
-      }
+  for (let i = 0; i < aliasArray.length; i++) {
+    if(!leaderBoard[aliasArray[i].ethernaut_address]) {
+      leaderBoard[aliasArray[i].ethernaut_address.toLowerCase()] = aliasArray[i].ethernaut_alias;
     }
-    return entry;
-  });
+  }
 
-  fs.writeFileSync(leaderBoardPath, JSON.stringify(newLeaderBoard));
+  fs.writeFileSync(leaderBoardPath, JSON.stringify(leaderBoard));
 };
 
 fetchAndAddAliases()
+
+module.exports = fetchAndAddAliases;
+
 
 module.exports = fetchAndAddAliases;

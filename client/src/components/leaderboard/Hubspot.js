@@ -12,24 +12,17 @@ class HubspotForm extends React.Component{
   }
 
   componentDidMount() {
-    const script = document.createElement("script");
-    script.src = "https://js.hsforms.net/forms/v2.js";
-    document.body.appendChild(script);
-
-    script.addEventListener("load", () => {
+    if (window.hbspt) {
       // @ts-ignore
-      if (window.hbspt) {
-        // @ts-ignore
-        window.hbspt.forms.create({
-          target: "#hubspotForm",
-          ...this.props,
-          onFormReady: this.onFormReady,
-          submitButtonClass: "leaderboard-alias-submit-button",
-          onFormSubmitted: this.onFormSubmitted,
-          onFormSubmit:this.onFormSubmit
-        });
-      }
-    });
+      window.hbspt.forms.create({
+        target: "#hubspotForm",
+        ...this.props,
+        onFormReady: this.onFormReady,
+        submitButtonClass: "leaderboard-alias-submit-button",
+        onFormSubmitted: this.onFormSubmitted,
+        onFormSubmit:this.onFormSubmit
+      });
+    }
   }
 
   onFormReady = (form) => { 
@@ -38,10 +31,13 @@ class HubspotForm extends React.Component{
     const buttons = form.querySelectorAll(".leaderboard-alias-submit-button");
     const inputs = form.querySelectorAll("input");
 
+
     const emailElement = spans[0]
     const usernameElement = spans[2]
     const label = legends[1]
     const addressInput = inputs[2]
+    const ethernautAddressLabel = spans[4]
+    const checkboxLabel = spans[5]
 
     const styles = getComputedStyle(document.documentElement);
 
@@ -50,6 +46,8 @@ class HubspotForm extends React.Component{
 
     emailElement.style.color = textColor;
     usernameElement.style.color = textColor;
+    ethernautAddressLabel.style.color = textColor;
+    checkboxLabel.style.color = textColor;
     
     label.style.color = textColor;
     label.style.opacity = 0.7;
@@ -61,7 +59,7 @@ class HubspotForm extends React.Component{
     buttons[0].style.borderRadius = '5px';
     buttons[0].style.cursor = 'pointer';
 
-    addressInput.disabled = true;
+    addressInput.style.pointerEvents = 'none';
     setNativeValue(addressInput, this.props.currentUser);
 
     form.addEventListener('submit', (event) => { 
@@ -90,13 +88,20 @@ class HubspotForm extends React.Component{
   }
 
   onFormSubmitted = (form) => { 
+    form.remove();
     const styles = getComputedStyle(document.documentElement);
     const textColor = styles.getPropertyValue('--secondary-color');
-    form.style.color = textColor;
-  }
+    const outerElement = document.querySelector('#hubspotForm')
+    const element = document.createElement('div')
+    element.innerHTML = "Thanks for submitting the form."
+    element.style.color = textColor
+    element.style.position = 'relative'
+    element.style.fontSize = '17px'
+    outerElement.insertAdjacentElement('afterbegin', element)
 
-  onFormSubmit = (form, data) => { 
-    console.log(data)
+    // change the height of modal
+    const modal = document.querySelector('.leaderboard-modal-body')
+    modal.style.height = '150px'
   }
 
   render() {

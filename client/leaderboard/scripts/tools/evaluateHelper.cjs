@@ -2,6 +2,7 @@ const oldSolveInstanceHex =
   "0x9dfdf7e3e630f506a3dfe38cdbe34e196353364235df33e5a3b588488d9a1e78";
 const newSolveInstanceHex =
   "0x5038a30b900118d4e513ba62ebd647a96726a6f81b8fda73c21e9da45df5423d";
+const callFunctionWithRetry = require("../tools/callFunctionWithRetry.cjs");
 
 const evaluateIfWeHavePassedReDeployment = (check, switchoverBlock) => {
   if (check > switchoverBlock) return true;
@@ -156,11 +157,11 @@ const evaluateTotalDifficultyFaced = (playerProfile, network) => {
     network.name
   ).toLowerCase()}/difficultyMap${network.name}.json`);
   playerLevelsArray.forEach((game) => {
-    if (game.isCompleted == true) {
+    if (game.isCompleted === true) {
       const thisDifficultyProfile = difficultyMap.find((matchingProfile) => {
-        if (matchingProfile.address == game.levelAddress)
-          return matchingProfile;
+        return matchingProfile.address === game.levelAddress;
       });
+
       difficultyCount += parseInt(thisDifficultyProfile.difficulty);
     }
   });
@@ -186,7 +187,7 @@ const evaluateDifficultyInThisStatisticsEmit = async (
   //sometimes, errors related to RPC downtime occur. This is a workaround to prevent the script from crashing
   try {
     let returnedIndexValue = difficultyMap.findIndex(
-      (matchingLevel) => decodedAddress == matchingLevel.address
+      (matchingLevel) => decodedAddress === matchingLevel.address
     );
     if (returnedIndexValue >= 0) {
       thisDifficultyProfileIndex = returnedIndexValue;
@@ -208,13 +209,18 @@ const evaluateDecodedLevelAddress = async (
   let levelAddress = "";
   try {
     let block = log.blockNumber;
-    const logsFromEthernaut = await nodeProvider.getLogs({
+    
+    const promise1 = () => nodeProvider.getLogs({
       fromBlock: block,
       toBlock: block,
       address: network.newAddress,
       topics: [newSolveInstanceHex],
     });
-    let txn = await nodeProvider.getTransaction(String(log.transactionHash));
+    const logsFromEthernaut = await callFunctionWithRetry(promise1)
+    
+    const promise2 = () => nodeProvider.getTransaction(String(log.transactionHash));
+    let txn = await callFunctionWithRetry(promise2)
+    
     let fromPlayer = String(txn.from);
     const playerTopicArray = [{ type: "address", name: "player" }];
     const levelTopicArray = [{ type: "address", name: "level" }];
@@ -223,7 +229,7 @@ const evaluateDecodedLevelAddress = async (
         playerTopicArray,
         String(log.topics[1])
       );
-      if (playerArray.player == fromPlayer) {
+      if (playerArray.player === fromPlayer) {
         let levelArray = web3.eth.abi.decodeParameters(
           levelTopicArray,
           String(log.topics[3])
@@ -245,7 +251,7 @@ const evaluateIfThisPlayerHasAlreadyCompletedThisLevel = (
   const doesPlayerExist = networkBoard.find(
     (entry) => player === entry.address
   );
-  const evaluator = false;
+  let evaluator = false;
   if (doesPlayerExist) {
     const indexOfExistingPlayer = networkBoard.findIndex(
       (entry) => player === entry.address

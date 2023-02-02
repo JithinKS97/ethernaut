@@ -1,4 +1,7 @@
-const { evaluateIfWeHavePassedReDeployment } = require("../../tools/evaluateHelper.cjs");
+const {
+  evaluateIfWeHavePassedReDeployment,
+} = require("../../tools/evaluateHelper.cjs");
+const callFunctionWithRetry = require("../../tools/callFunctionWithRetry.cjs");
 
 const callBlockChain = async (
   network,
@@ -13,7 +16,9 @@ const callBlockChain = async (
   const upperBlock = toBlock;
   let lastFromBlock = fromBlock; //the first deployed Ethernaut block
   let nextToBlock = fromBlock + incrementer; //plus difference 3605, then 10,000 thereafter until 7968901
+  console.log("Upper block", upperBlock);
   do {
+    console.log("nextToBlock", nextToBlock);
     if (lastFromBlock < switchoverBlock && nextToBlock > switchoverBlock) {
       nextToBlock = switchoverBlock;
     }
@@ -23,14 +28,23 @@ const callBlockChain = async (
     )
       ? network.oldAddress
       : network.newAddress;
-    const logDump = await nodeProvider.getLogs({
-      fromBlock: lastFromBlock,
-      toBlock: nextToBlock,
-      address,
-      topics: [],
-    });
+
+    // eslint-disable-next-line no-loop-func
+    const promise = () => {
+      return nodeProvider.getLogs({
+        fromBlock: lastFromBlock,
+        toBlock: nextToBlock,
+        address,
+        topics: [],
+      });
+    };
+
+    const logDump = await callFunctionWithRetry(promise);
+
     logs = logs.concat(logDump);
+
     lastFromBlock = nextToBlock + 1;
+
     nextToBlock =
       nextToBlock + incrementer + 1 > upperBlock
         ? upperBlock
