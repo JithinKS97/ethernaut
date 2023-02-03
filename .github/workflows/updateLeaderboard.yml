@@ -2,8 +2,7 @@
 name: update leaderboard
 on:
   schedule:
-    # Runs every 2 hours
-    - cron: "0 */2 * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 jobs:
   crawl:
@@ -35,3 +34,12 @@ jobs:
         with:
           force_with_lease: true
           branch: leaderboard-periodic-update
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: leaderboard-periodic-update
+          title: "Updating leaderboard"
+          body: "This is an automated PR to update the leaderboard"
+          labels: "automated, leaderboard"
+          base: "master"
